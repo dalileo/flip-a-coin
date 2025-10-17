@@ -13,8 +13,13 @@
   <meta name="theme-color" content="#ffffff">
 </head>
 <body>
+  <button id="theme-toggle" aria-label="Cambiar tema">
+    <span class="sun-icon">☀️</span>
+    <span class="moon-icon">🌙</span>
+  </button>
+  
   <div class='v-center-flex'>
-    <div id="moneda">
+    <div id="moneda" tabindex="0" role="button" aria-label="Lanzar moneda">
       <div class="side-a"><img src="img/cara.png" alt="cara"></div> <!-- link a archivo de imagen para cara -->
       <div class="side-b"><img src="img/cruz.png" alt="cruz"></div> <!-- link a archivo de imagen para cruz -->
     </div>
@@ -22,7 +27,7 @@
   <script>
   jQuery(document).ready(function($){
 
-    $('#moneda').on('click', function(){
+    function flipCoin() {
       var flipResult = Math.random();
       $('#moneda').removeClass();
       setTimeout(function(){
@@ -35,7 +40,41 @@
           console.log('salió cruz');
         }
       }, 100);
+    }
+    
+    $('#moneda').on('click', flipCoin);
+    
+    // Eventos de teclado
+    $('#moneda').on('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        flipCoin();
+      }
     });
+    
+    // Dar foco automático a la moneda
+    setTimeout(function(){
+      $('#moneda').focus();
+    }, 100);
+    
+    // Tema claro/oscuro
+    function initTheme() {
+      var savedTheme = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (savedTheme === 'light' || (!savedTheme && !prefersDark)) {
+        $('body').addClass('light-mode');
+      }
+    }
+    
+    function toggleTheme() {
+      $('body').toggleClass('light-mode');
+      var isLight = $('body').hasClass('light-mode');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+    
+    $('#theme-toggle').on('click', toggleTheme);
+    initTheme();
   });
   </script>
 </body>
