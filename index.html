@@ -47,12 +47,12 @@
       
       // Aplicar nueva clase después de un pequeño delay
       setTimeout(() => {
-        if (flipResult <= 0.5) {
+        if (flipResult < 0.5) {
           COIN.classList.add('cara');
-          console.log('salió cara');
+          console.log('salió cara - probabilidad:', flipResult.toFixed(4));
         } else {
           COIN.classList.add('cruz');
-          console.log('salió cruz');
+          console.log('salió cruz - probabilidad:', flipResult.toFixed(4));
         }
       }, 100);
     }
