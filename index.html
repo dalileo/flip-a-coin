@@ -42,19 +42,20 @@
     function flipCoin() {
       const flipResult = Math.random();
       
-      // Remover clases anteriores
-      COIN.className = '';
+      // Remover solo las clases de animación anteriores
+      COIN.classList.remove('cara', 'cruz');
       
-      // Aplicar nueva clase después de un pequeño delay
-      setTimeout(() => {
-        if (flipResult < 0.5) {
-          COIN.classList.add('cara');
-          console.log('salió cara - probabilidad:', flipResult.toFixed(4));
-        } else {
-          COIN.classList.add('cruz');
-          console.log('salió cruz - probabilidad:', flipResult.toFixed(4));
-        }
-      }, 100);
+      // Forzar reflow para reiniciar la animación
+      void COIN.offsetWidth;
+      
+      // Aplicar nueva clase inmediatamente
+      if (flipResult < 0.5) {
+        COIN.classList.add('cara');
+        console.log('🪙 Salió CARA - probabilidad:', flipResult.toFixed(4));
+      } else {
+        COIN.classList.add('cruz');
+        console.log('💰 Salió CRUZ - probabilidad:', flipResult.toFixed(4));
+      }
     }
 
     /**

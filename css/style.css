@@ -46,14 +46,31 @@ body {
   width: 375px;  /* Aumentado 25% desde 300px */
   height: 375px; /* Aumentado 25% desde 300px */
   cursor: pointer;
-  transition: transform 0.3s ease, filter 0.3s ease;
+  transition: filter 0.3s ease;  /* Solo filter, NO transform */
   transform-style: preserve-3d;
 }
 
-/* Efecto hover */
-#moneda:hover {
+/* Transition de transform solo cuando NO está animando */
+#moneda:not(.cara):not(.cruz) {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* Efecto hover - solo cuando NO está animando */
+#moneda:hover:not(.cara):not(.cruz) {
   transform: scale(1.05);
   filter: brightness(1.1);
+}
+
+/* Durante la animación, NO aplicar ningún hover effect */
+#moneda.cara,
+#moneda.cruz {
+  pointer-events: auto;  /* Mantener clickeable */
+}
+
+#moneda.cara:hover,
+#moneda.cruz:hover {
+  transform: none !important;  /* Forzar sin transform en hover */
+  filter: none !important;     /* Sin filtros durante animación */
 }
 
 /* Remover outline al hacer focus con click */
@@ -93,11 +110,13 @@ body {
 /* Animación para cara (1800 grados) */
 #moneda.cara {
   animation: flipHeads 3s ease-out forwards;
+  transition: none !important;  /* Desactivar transition durante animación */
 }
 
 /* Animación para cruz (1980 grados) */
 #moneda.cruz {
   animation: flipTails 3s ease-out forwards;
+  transition: none !important;  /* Desactivar transition durante animación */
 }
 
 /* Keyframes para cara */
