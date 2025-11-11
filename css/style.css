@@ -61,16 +61,10 @@ body {
   filter: brightness(1.1);
 }
 
-/* Durante la animación, NO aplicar ningún hover effect */
+/* Durante la animación, desactivar hover temporalmente */
 #moneda.cara,
 #moneda.cruz {
-  pointer-events: auto;  /* Mantener clickeable */
-}
-
-#moneda.cara:hover,
-#moneda.cruz:hover {
-  transform: none !important;  /* Forzar sin transform en hover */
-  filter: none !important;     /* Sin filtros durante animación */
+  pointer-events: none;  /* Desactivar hover durante animación */
 }
 
 /* Remover outline al hacer focus con click */
