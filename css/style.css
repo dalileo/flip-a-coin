@@ -61,10 +61,20 @@ body {
   filter: brightness(1.1);
 }
 
-/* Durante la animación, desactivar hover temporalmente */
-#moneda.cara,
-#moneda.cruz {
-  pointer-events: none;  /* Desactivar hover durante animación */
+/* En escritorio: desactivar hover durante animación */
+@media (hover: hover) and (pointer: fine) {
+  #moneda.cara,
+  #moneda.cruz {
+    pointer-events: none;  /* Desactivar hover solo en escritorio */
+  }
+}
+
+/* En móvil: mantener pointer-events activo siempre */
+@media (hover: none) or (pointer: coarse) {
+  #moneda.cara,
+  #moneda.cruz {
+    pointer-events: auto;  /* Permitir toques en móvil */
+  }
 }
 
 /* Remover outline al hacer focus con click */
