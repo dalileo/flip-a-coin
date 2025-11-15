@@ -68,10 +68,12 @@
       const savedTheme = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       
-      // Aplicar modo claro si está guardado o si el sistema lo prefiere
-      if (savedTheme === 'light' || (!savedTheme && !prefersDark)) {
+      // Aplicar modo claro solo si está explícitamente guardado
+      // Por defecto: modo oscuro
+      if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
       }
+      // Si no hay preferencia guardada, usar modo oscuro por defecto
     }
 
     /**
