@@ -6,26 +6,24 @@ const els = {
   coin: $('coin'),
   inner: $('coin-inner'),
   shadow: $('coin-shadow'),
-  flip: $('flip'),
   result: $('result'),
-  eyebrow: $('result-eyebrow'),
-  value: $('result-value'),
-  headsCount: $('heads-count'),
-  tailsCount: $('tails-count'),
-  headsPct: $('heads-pct'),
-  tailsPct: $('tails-pct'),
-  streak: $('streak'),
-  ratio: $('ratio-heads'),
-  history: $('history'),
+  announce: $('announce'),
+  statsLine: $('stats-line'),
+  historyLine: $('history-line'),
+  heatmap: $('heatmap'),
+  heatmapMonths: $('heatmap-months'),
+  heatmapCaption: $('heatmap-caption'),
   reset: $('reset'),
   themeToggle: $('theme-toggle'),
   themeColor: document.querySelector('meta[name="theme-color"]'),
 };
 
-const LABEL = { heads: 'Cara', tails: 'Cruz' };
+const LABEL = { heads: 'cara', tails: 'cruz' };
 const STORAGE_KEY = 'flip-a-coin:stats';
-const HISTORY_LIMIT = 24;
+const HISTORY_LIMIT = 32;
 const FLIP_MS = 1500;
+const HEATMAP_WEEKS = 26;
+const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 /* --------------------------------------------------------------------------
@@ -44,21 +42,38 @@ const storage = {
   },
 };
 
+const emptyStats = () => ({ heads: 0, tails: 0, best: 0, history: [], days: {} });
+
 function loadStats() {
   try {
     const data = JSON.parse(storage.get(STORAGE_KEY));
     if (data && Array.isArray(data.history)) {
+      const days = {};
+      for (const [k, v] of Object.entries(data.days || {})) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && Number(v) > 0) days[k] = Number(v);
+      }
       return {
         heads: Number(data.heads) || 0,
         tails: Number(data.tails) || 0,
+        best: Number(data.best) || 0,
         history: data.history.filter((s) => s in LABEL).slice(0, HISTORY_LIMIT),
+        days,
       };
     }
   } catch { /* datos corruptos: se empieza de cero */ }
-  return { heads: 0, tails: 0, history: [] };
+  return emptyStats();
 }
 
 let stats = loadStats();
+
+/* --------------------------------------------------------------------------
+   Fechas (siempre en hora local)
+   -------------------------------------------------------------------------- */
+
+const pad = (n) => String(n).padStart(2, '0');
+const dayKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const formatDay = (d) => `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 
 /* --------------------------------------------------------------------------
    Moneda
@@ -78,7 +93,6 @@ let busy = false;
 function setBusy(value) {
   busy = value;
   els.coin.setAttribute('aria-busy', String(value));
-  els.flip.setAttribute('aria-disabled', String(value));
 }
 
 function nextRotation(side) {
@@ -95,7 +109,7 @@ function animateFlip(from, to) {
     return Promise.resolve();
   }
 
-  const lift = `calc(var(--coin-size) * -0.55)`;
+  const lift = `calc(var(--coin-size) * -0.45)`;
   const opts = { duration: FLIP_MS, fill: 'forwards' };
 
   const spin = els.inner.animate(
@@ -135,6 +149,57 @@ function animateFlip(from, to) {
   });
 }
 
+/* --------------------------------------------------------------------------
+   Efecto "hypertext": caracteres aleatorios que se resuelven letra a letra
+   -------------------------------------------------------------------------- */
+
+const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&*+=/<>?';
+const randomGlyph = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+
+function renderScramble(final, resolved) {
+  const done = final.slice(0, resolved);
+  let noise = '';
+  for (let i = resolved; i < final.length; i += 1) noise += randomGlyph();
+
+  const span = document.createElement('span');
+  span.className = 'scramble';
+  span.textContent = noise;
+  els.result.replaceChildren(done, span);
+}
+
+function scramble(final, duration) {
+  els.result.classList.remove('is-idle');
+
+  if (reducedMotion.matches) {
+    els.result.textContent = final;
+    return Promise.resolve();
+  }
+
+  // Ruido durante el vuelo; las letras se fijan en el último 40 %
+  const revealFrom = duration * 0.6;
+  const step = (duration - revealFrom) / final.length;
+  const start = performance.now();
+  let lastTick = 0;
+
+  return new Promise((resolve) => {
+    const frame = (now) => {
+      const t = now - start;
+      if (t >= duration) {
+        els.result.textContent = final;
+        resolve();
+        return;
+      }
+      if (now - lastTick > 45) {
+        lastTick = now;
+        const resolved = t < revealFrom ? 0 : Math.floor((t - revealFrom) / step) + 1;
+        renderScramble(final, Math.min(resolved, final.length));
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  });
+}
+
 async function flip() {
   if (busy) return;
   setBusy(true);
@@ -143,36 +208,21 @@ async function flip() {
   const from = rotation;
   rotation = nextRotation(side);
 
-  els.result.classList.remove('is-landed');
-  els.eyebrow.textContent = 'Lanzando…';
-  els.value.textContent = ' ';
+  els.announce.textContent = '';
+  await Promise.all([
+    animateFlip(from, rotation),
+    scramble(LABEL[side].toUpperCase(), FLIP_MS * 0.88),
+  ]);
 
-  await animateFlip(from, rotation);
-
+  els.announce.textContent = `Salió ${LABEL[side]}`;
   record(side);
-  showResult(side);
   navigator.vibrate?.(15);
   setBusy(false);
-}
-
-function showResult(side) {
-  els.eyebrow.textContent = 'Salió';
-  els.value.textContent = LABEL[side];
-  void els.result.offsetWidth; // reinicia la animación de entrada
-  els.result.classList.add('is-landed');
 }
 
 /* --------------------------------------------------------------------------
    Estadísticas
    -------------------------------------------------------------------------- */
-
-function record(side) {
-  stats[side] += 1;
-  stats.history.unshift(side);
-  stats.history.length = Math.min(stats.history.length, HISTORY_LIMIT);
-  storage.set(STORAGE_KEY, JSON.stringify(stats));
-  renderStats();
-}
 
 function currentStreak() {
   const [first] = stats.history;
@@ -182,40 +232,139 @@ function currentStreak() {
   return { side: first, n };
 }
 
+function record(side) {
+  stats[side] += 1;
+  stats.history.unshift(side);
+  stats.history.length = Math.min(stats.history.length, HISTORY_LIMIT);
+  stats.best = Math.max(stats.best, currentStreak().n);
+
+  const today = dayKey(new Date());
+  stats.days[today] = (stats.days[today] || 0) + 1;
+
+  storage.set(STORAGE_KEY, JSON.stringify(stats));
+  render();
+}
+
+// Construye una línea tipo "etiqueta valor · etiqueta valor"
+function fillLine(el, items) {
+  const nodes = [];
+  items.forEach(([label, value, extraClass], i) => {
+    if (i > 0) {
+      const sep = document.createElement('span');
+      sep.className = 'sep';
+      sep.textContent = '·';
+      nodes.push(sep);
+    }
+    const item = document.createElement('span');
+    item.className = 'item';
+    const b = document.createElement('b');
+    if (extraClass) b.className = extraClass;
+    b.textContent = value;
+    item.append(`${label} `, b);
+    nodes.push(item);
+  });
+  el.replaceChildren(...nodes);
+}
+
 function renderStats() {
   const total = stats.heads + stats.tails;
-  const pct = (n) => (total ? Math.round((n / total) * 100) : 0);
-
-  els.headsCount.textContent = stats.heads;
-  els.tailsCount.textContent = stats.tails;
-  els.headsPct.textContent = `${pct(stats.heads)}%`;
-  els.tailsPct.textContent = `${pct(stats.tails)}%`;
-  els.ratio.style.width = total ? `${(stats.heads / total) * 100}%` : '50%';
-
+  const pct = (n) => (total ? `${Math.round((n / total) * 100)}%` : '–');
   const streak = currentStreak();
-  els.streak.textContent = streak ? `${streak.n}× ${LABEL[streak.side]}` : '—';
 
-  els.history.replaceChildren(
-    ...stats.history.map((side) => {
-      const li = document.createElement('li');
-      li.className = side;
-      li.title = LABEL[side];
-      li.setAttribute('aria-label', LABEL[side]);
-      return li;
-    }),
+  fillLine(els.statsLine, [
+    ['total', String(total)],
+    ['cara', pct(stats.heads)],
+    ['cruz', pct(stats.tails)],
+    ['racha', streak ? `${streak.n}×${LABEL[streak.side]}` : '–'],
+    ['récord', stats.best ? String(stats.best) : '–'],
+    ['hoy', String(stats.days[dayKey(new Date())] || 0)],
+  ]);
+
+  // ● cara, ○ cruz; el más reciente a la izquierda
+  const trail = stats.history.map((s) => (s === 'heads' ? '●' : '○')).join('');
+  fillLine(els.historyLine, [['últimos', trail || '–', 'history']]);
+  els.historyLine.setAttribute(
+    'aria-label',
+    trail ? `Últimos: ${stats.history.map((s) => LABEL[s]).join(', ')}` : 'Sin lanzamientos',
   );
+}
 
-  els.reset.hidden = total === 0;
+function renderHeatmap() {
+  const today = new Date();
+  const todayKey = dayKey(today);
+  const mondayIndex = (today.getDay() + 6) % 7;
+  const start = addDays(today, -mondayIndex - (HEATMAP_WEEKS - 1) * 7);
+
+  const counts = [];
+  for (let i = 0; i < HEATMAP_WEEKS * 7; i += 1) {
+    const d = addDays(start, i);
+    counts.push({ d, key: dayKey(d), n: stats.days[dayKey(d)] || 0 });
+  }
+
+  const max = Math.max(1, ...counts.map((c) => c.n));
+  let flips = 0;
+  let activeDays = 0;
+
+  const cells = counts.map(({ d, key, n }) => {
+    const cell = document.createElement('i');
+    if (key > todayKey) {
+      cell.className = 'is-future';
+      return cell;
+    }
+    if (key === todayKey) cell.className = 'is-today';
+    if (n) {
+      flips += n;
+      activeDays += 1;
+      cell.dataset.l = String(Math.min(4, Math.ceil((n / max) * 4)));
+    }
+    cell.title = `${formatDay(d)} · ${n} ${n === 1 ? 'lanzamiento' : 'lanzamientos'}`;
+    return cell;
+  });
+
+  // Etiqueta de mes en la columna de la semana donde empieza cada mes
+  const months = [];
+  let lastLabelCol = -3;
+  for (let w = 0; w < HEATMAP_WEEKS; w += 1) {
+    const weekStart = addDays(start, w * 7);
+    const firstOfMonth = [0, 1, 2, 3, 4, 5, 6]
+      .map((i) => addDays(weekStart, i))
+      .find((d) => d.getDate() === 1);
+    const span = document.createElement('span');
+    if (firstOfMonth && w - lastLabelCol >= 3) {
+      span.textContent = MONTHS[firstOfMonth.getMonth()];
+      lastLabelCol = w;
+    }
+    months.push(span);
+  }
+
+  els.heatmap.style.setProperty('--cols', HEATMAP_WEEKS);
+  els.heatmapMonths.style.setProperty('--cols', HEATMAP_WEEKS);
+  els.heatmap.replaceChildren(...cells);
+  els.heatmapMonths.replaceChildren(...months);
+
+  const caption = `${flips} en ${activeDays} ${activeDays === 1 ? 'día' : 'días'} · ${HEATMAP_WEEKS} semanas`;
+  els.heatmapCaption.textContent = caption;
+  els.heatmap.setAttribute('aria-label', `Mapa de actividad: ${caption}`);
+}
+
+function render() {
+  renderStats();
+  renderHeatmap();
+  els.reset.hidden = stats.heads + stats.tails === 0;
 }
 
 function resetStats() {
   if (busy) return;
-  stats = { heads: 0, tails: 0, history: [] };
+  if (!window.confirm('¿Borrar estadísticas, historial y mapa de actividad?')) return;
+  stats = emptyStats();
   storage.remove(STORAGE_KEY);
-  renderStats();
-  els.result.classList.remove('is-landed');
-  els.eyebrow.textContent = '¿Qué saldrá?';
-  els.value.textContent = 'Lanza la moneda';
+  showIdle();
+  render();
+}
+
+function showIdle() {
+  els.result.classList.add('is-idle');
+  els.result.textContent = '----';
 }
 
 /* --------------------------------------------------------------------------
@@ -231,8 +380,9 @@ function effectiveTheme() {
 function syncThemeUI() {
   const theme = effectiveTheme();
   const next = theme === 'light' ? 'oscuro' : 'claro';
+  els.themeToggle.textContent = `[${next}]`;
   els.themeToggle.setAttribute('aria-label', `Cambiar a modo ${next}`);
-  els.themeColor.content = theme === 'light' ? '#f6f3ec' : '#0f1115';
+  els.themeColor.content = theme === 'light' ? '#f3f0e8' : '#0d0d0c';
 }
 
 function toggleTheme() {
@@ -247,7 +397,6 @@ function toggleTheme() {
    -------------------------------------------------------------------------- */
 
 els.coin.addEventListener('click', flip);
-els.flip.addEventListener('click', flip);
 els.reset.addEventListener('click', resetStats);
 els.themeToggle.addEventListener('click', toggleTheme);
 systemLight.addEventListener('change', syncThemeUI);
@@ -257,9 +406,14 @@ document.addEventListener('keydown', (e) => {
   if (e.key !== ' ' && e.key !== 'Enter') return;
   if (e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
   const target = e.target.closest?.('button, a, input, textarea, select, [contenteditable]');
-  if (target && target !== els.coin && target !== els.flip) return;
+  if (target && target !== els.coin) return;
   e.preventDefault();
   flip();
+});
+
+// Si la pestaña queda abierta de un día para otro, el heatmap se pone al día
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') render();
 });
 
 /* --------------------------------------------------------------------------
@@ -267,5 +421,7 @@ document.addEventListener('keydown', (e) => {
    -------------------------------------------------------------------------- */
 
 els.inner.style.transform = `rotateX(${rotation}deg)`;
-renderStats();
+if (stats.history[0]) els.result.textContent = LABEL[stats.history[0]].toUpperCase();
+else showIdle();
+render();
 syncThemeUI();

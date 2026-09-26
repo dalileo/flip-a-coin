@@ -6,22 +6,24 @@ Moneda virtual para decidir rápido: toca la moneda (o pulsa **Espacio**) y sale
 
 ## Características
 
+- **Estética de terminal**: tipografía monoespaciada, sin adornos; solo la moneda, el resultado y un atajo de teclado.
 - **Lanzamiento realista**: la moneda sube, gira entre 4 y 6 vueltas y aterriza con un pequeño rebote; la sombra acompaña la altura.
+- **Revelado "hypertext"**: mientras la moneda vuela, el resultado se muestra como caracteres aleatorios que se fijan letra a letra en `CARA` o `CRUZ`.
 - **Aleatoriedad justa**: 50/50 con `crypto.getRandomValues`.
-- **Resultado visible y accesible**: texto grande anunciado a lectores de pantalla (`aria-live`).
-- **Estadísticas**: conteo y porcentaje de cara/cruz, racha actual, barra de proporción y los últimos 24 lanzamientos. Se guardan en `localStorage` y se pueden reiniciar.
-- **Tema claro/oscuro**: sigue al sistema por defecto; el botón superior fija una preferencia.
-- **Accesibilidad**: controles nativos (`<button>`), foco visible, cara y cruz diferenciadas por forma (punto relleno / anillo) y no solo por color, respeta `prefers-reduced-motion`.
-- **Sin dependencias ni build**: HTML, CSS y JavaScript planos.
+- **Stats en una línea**: total, % de cara y cruz, racha actual, récord de racha y lanzamientos de hoy, más los últimos 32 resultados (`●` cara, `○` cruz).
+- **Heatmap de actividad**: las últimas 26 semanas, un cuadro por día, con intensidad según cuántas veces lanzaste la moneda ese día.
+- **Tema claro/oscuro**: sigue al sistema por defecto; `[claro]`/`[oscuro]` fija una preferencia.
+- **Accesibilidad**: la moneda es un `<button>`, el resultado se anuncia al terminar (no durante el efecto), respeta `prefers-reduced-motion`.
+- **Sin dependencias ni build**: HTML, CSS y JavaScript planos. Todo se guarda en `localStorage`.
 
 ## Controles
 
 | Acción | Resultado |
 |---|---|
-| Clic / toque en la moneda o en **Lanzar** | Lanza la moneda |
+| Clic / toque en la moneda | Lanza la moneda |
 | **Espacio** o **Enter** | Lanza la moneda |
-| Botón ☀️/🌙 | Cambia de tema |
-| **Reiniciar** | Borra estadísticas e historial |
+| `[claro]` / `[oscuro]` | Cambia de tema |
+| `[reiniciar]` | Borra estadísticas, historial y heatmap (pide confirmación) |
 
 ## Uso local
 
@@ -37,7 +39,7 @@ npx http-server .
 ```
 index.html          Marcado y aplicación temprana del tema (evita parpadeo)
 css/style.css       Tokens de color, layout y estilos
-js/app.js           Lanzamiento, animación (Web Animations API), estadísticas y tema
+js/app.js           Lanzamiento, animación, efecto de revelado, stats, heatmap y tema
 img/coin-heads.webp Cara de la moneda
 img/coin-tails.webp Cruz de la moneda
 img/favicon/        Iconos y manifest
@@ -48,6 +50,7 @@ img/favicon/        Iconos y manifest
 - **Colores**: variables al inicio de `css/style.css` (`--bg`, `--accent`, etc.), con bloque separado para modo claro.
 - **Tamaño de la moneda**: `--coin-size`.
 - **Duración del giro**: `FLIP_MS` en `js/app.js`.
+- **Semanas del heatmap**: `HEATMAP_WEEKS` en `js/app.js`.
 - **Imágenes**: reemplaza los `.webp` de `img/` por imágenes cuadradas con fondo transparente y la moneda ocupando todo el lienzo.
 
 ## Autor
