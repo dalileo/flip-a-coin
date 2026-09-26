@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Cara o Cruz</title>
   <meta name="description" content="Lanza una moneda: cara o cruz.">
-  <meta name="theme-color" content="#0d0d0c">
+  <meta name="theme-color" content="#0d0d0d">
 
   <!-- Aplica el tema guardado antes de pintar para evitar parpadeo -->
   <script>
@@ -17,6 +17,9 @@
     })();
   </script>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <link rel="preload" as="image" href="img/coin-heads.webp">
   <link rel="preload" as="image" href="img/coin-tails.webp">
@@ -43,13 +46,13 @@
       <div class="coin-shadow" id="coin-shadow" aria-hidden="true"></div>
     </div>
 
-    <p class="result" id="result" aria-hidden="true">----</p>
+    <p class="result" aria-hidden="true"><span class="result__text" id="result"></span><span class="cursor" id="cursor"></span></p>
     <p class="sr-only" id="announce" aria-live="polite"></p>
 
-    <p class="hint">
-      <span class="hint--keys"><kbd>espacio</kbd> para lanzar</span>
-      <span class="hint--touch">toca la moneda</span>
-    </p>
+    <button class="link hint" id="hint" type="button" aria-label="Lanzar la moneda (atajo: espacio)">
+      <span class="hint--keys">[espacio]</span>
+      <span class="hint--touch">[lanzar]</span>
+    </button>
   </main>
 
   <section class="log" aria-label="Estadísticas">

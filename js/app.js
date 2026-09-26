@@ -7,6 +7,8 @@ const els = {
   inner: $('coin-inner'),
   shadow: $('coin-shadow'),
   result: $('result'),
+  resultLine: document.querySelector('.result'),
+  hint: $('hint'),
   announce: $('announce'),
   statsLine: $('stats-line'),
   historyLine: $('history-line'),
@@ -168,8 +170,6 @@ function renderScramble(final, resolved) {
 }
 
 function scramble(final, duration) {
-  els.result.classList.remove('is-idle');
-
   if (reducedMotion.matches) {
     els.result.textContent = final;
     return Promise.resolve();
@@ -181,11 +181,15 @@ function scramble(final, duration) {
   const start = performance.now();
   let lastTick = 0;
 
+  // El cursor deja de parpadear mientras "escribe"
+  els.resultLine.classList.add('is-typing');
+
   return new Promise((resolve) => {
     const frame = (now) => {
       const t = now - start;
       if (t >= duration) {
         els.result.textContent = final;
+        els.resultLine.classList.remove('is-typing');
         resolve();
         return;
       }
@@ -362,9 +366,9 @@ function resetStats() {
   render();
 }
 
+// Antes del primer lanzamiento solo se ve el cursor
 function showIdle() {
-  els.result.classList.add('is-idle');
-  els.result.textContent = '----';
+  els.result.textContent = '';
 }
 
 /* --------------------------------------------------------------------------
@@ -382,7 +386,7 @@ function syncThemeUI() {
   const next = theme === 'light' ? 'oscuro' : 'claro';
   els.themeToggle.textContent = `[${next}]`;
   els.themeToggle.setAttribute('aria-label', `Cambiar a modo ${next}`);
-  els.themeColor.content = theme === 'light' ? '#f3f0e8' : '#0d0d0c';
+  els.themeColor.content = theme === 'light' ? '#ffffff' : '#0d0d0d';
 }
 
 function toggleTheme() {
@@ -397,6 +401,7 @@ function toggleTheme() {
    -------------------------------------------------------------------------- */
 
 els.coin.addEventListener('click', flip);
+els.hint.addEventListener('click', flip);
 els.reset.addEventListener('click', resetStats);
 els.themeToggle.addEventListener('click', toggleTheme);
 systemLight.addEventListener('change', syncThemeUI);
@@ -406,7 +411,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key !== ' ' && e.key !== 'Enter') return;
   if (e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
   const target = e.target.closest?.('button, a, input, textarea, select, [contenteditable]');
-  if (target && target !== els.coin) return;
+  if (target && target !== els.coin && target !== els.hint) return;
   e.preventDefault();
   flip();
 });
@@ -421,7 +426,6 @@ document.addEventListener('visibilitychange', () => {
    -------------------------------------------------------------------------- */
 
 els.inner.style.transform = `rotateX(${rotation}deg)`;
-if (stats.history[0]) els.result.textContent = LABEL[stats.history[0]].toUpperCase();
-else showIdle();
+showIdle();
 render();
 syncThemeUI();

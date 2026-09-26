@@ -6,21 +6,21 @@ Moneda virtual para decidir rápido: toca la moneda (o pulsa **Espacio**) y sale
 
 ## Características
 
-- **Estética de terminal**: tipografía monoespaciada, sin adornos; solo la moneda, el resultado y un atajo de teclado.
+- **Estética de terminal**: JetBrains Mono, acento naranja `#FB7B24` y nada más; solo la moneda, el resultado con cursor parpadeante y `[espacio]` (también clickeable).
 - **Lanzamiento realista**: la moneda sube, gira entre 4 y 6 vueltas y aterriza con un pequeño rebote; la sombra acompaña la altura.
-- **Revelado "hypertext"**: mientras la moneda vuela, el resultado se muestra como caracteres aleatorios que se fijan letra a letra en `CARA` o `CRUZ`.
+- **Revelado "hypertext"**: el resultado no aparece hasta lanzar; mientras la moneda vuela se muestran caracteres aleatorios que se fijan letra a letra en `CARA` o `CRUZ`.
 - **Aleatoriedad justa**: 50/50 con `crypto.getRandomValues`.
 - **Stats en una línea**: total, % de cara y cruz, racha actual, récord de racha y lanzamientos de hoy, más los últimos 32 resultados (`●` cara, `○` cruz).
 - **Heatmap de actividad**: las últimas 26 semanas, un cuadro por día, con intensidad según cuántas veces lanzaste la moneda ese día.
-- **Tema claro/oscuro**: sigue al sistema por defecto; `[claro]`/`[oscuro]` fija una preferencia.
+- **Tema claro/oscuro**: el claro es blanco y grises con el acento; sigue al sistema por defecto y `[claro]`/`[oscuro]` fija una preferencia.
 - **Accesibilidad**: la moneda es un `<button>`, el resultado se anuncia al terminar (no durante el efecto), respeta `prefers-reduced-motion`.
-- **Sin dependencias ni build**: HTML, CSS y JavaScript planos. Todo se guarda en `localStorage`.
+- **Sin build**: HTML, CSS y JavaScript planos; la única dependencia externa es la fuente de Google Fonts (con respaldo a la monoespaciada del sistema). Todo se guarda en `localStorage`.
 
 ## Controles
 
 | Acción | Resultado |
 |---|---|
-| Clic / toque en la moneda | Lanza la moneda |
+| Clic / toque en la moneda o en `[espacio]` | Lanza la moneda |
 | **Espacio** o **Enter** | Lanza la moneda |
 | `[claro]` / `[oscuro]` | Cambia de tema |
 | `[reiniciar]` | Borra estadísticas, historial y heatmap (pide confirmación) |
