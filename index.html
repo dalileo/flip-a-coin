@@ -2,115 +2,95 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flip a Coin</title>
-  <link rel="stylesheet" type="text/css" href="css/style.css">
-  
-  <!-- Favicon -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cara o Cruz</title>
+  <meta name="description" content="Lanza una moneda virtual: cara o cruz, con estadísticas e historial.">
+  <meta name="theme-color" content="#0f1115">
+
+  <!-- Aplica el tema guardado antes de pintar para evitar parpadeo -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preload" as="image" href="img/coin-heads.webp">
+  <link rel="preload" as="image" href="img/coin-tails.webp">
+
   <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
   <link rel="manifest" href="img/favicon/site.webmanifest">
-  <link rel="mask-icon" href="img/favicon/safari-pinned-tab.svg" color="#5bbad5">
-  <meta name="msapplication-TileColor" content="#444444">
-  <meta name="theme-color" content="#ffffff">
 </head>
 <body>
-  <!-- Botón de toggle de tema -->
-  <button id="theme-toggle" aria-label="Cambiar tema">
-    <span class="sun-icon">☀️</span>
-    <span class="moon-icon">🌙</span>
-  </button>
-  
-  <!-- Contenedor centrado de la moneda -->
-  <div class="v-center-flex">
-    <div id="moneda" tabindex="0" role="button" aria-label="Lanzar moneda">
-      <div class="side-a"><img src="img/cara_new.png" alt="cara"></div>
-      <div class="side-b"><img src="img/cruz_new.png" alt="cruz"></div>
+  <header class="topbar">
+    <div class="brand">
+      <img src="img/coin-heads.webp" alt="" width="26" height="26">
+      <span>Cara o Cruz</span>
     </div>
-  </div>
+    <button class="icon-btn" id="theme-toggle" type="button" aria-label="Cambiar a modo claro">
+      <svg class="icon icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+      </svg>
+      <svg class="icon icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/>
+      </svg>
+    </button>
+  </header>
 
-  <script>
-    // Constantes - Referencias a elementos DOM
-    const COIN = document.getElementById('moneda');
-    const THEME_TOGGLE = document.getElementById('theme-toggle');
+  <main class="stage">
+    <div class="arena">
+      <button class="coin" id="coin" type="button" aria-label="Lanzar la moneda" aria-describedby="result">
+        <span class="coin__inner" id="coin-inner">
+          <img class="coin__face coin__face--heads" src="img/coin-heads.webp" alt="" width="512" height="512" draggable="false">
+          <img class="coin__face coin__face--tails" src="img/coin-tails.webp" alt="" width="512" height="512" draggable="false">
+        </span>
+      </button>
+      <div class="coin-shadow" id="coin-shadow" aria-hidden="true"></div>
+    </div>
 
-    /**
-     * Lanza la moneda con animación 3D
-     * Resultado aleatorio: 50% cara, 50% cruz
-     */
-    function flipCoin() {
-      const flipResult = Math.random();
-      
-      // Remover solo las clases de animación anteriores
-      COIN.classList.remove('cara', 'cruz');
-      
-      // Forzar reflow para reiniciar la animación
-      void COIN.offsetWidth;
-      
-      // Aplicar nueva clase inmediatamente
-      if (flipResult < 0.5) {
-        COIN.classList.add('cara');
-        console.log('🪙 Salió CARA - probabilidad:', flipResult.toFixed(4));
-      } else {
-        COIN.classList.add('cruz');
-        console.log('💰 Salió CRUZ - probabilidad:', flipResult.toFixed(4));
-      }
-    }
+    <div class="result" id="result" aria-live="polite" aria-atomic="true">
+      <span class="result__eyebrow" id="result-eyebrow">¿Qué saldrá?</span>
+      <span class="result__value" id="result-value">Lanza la moneda</span>
+    </div>
 
-    /**
-     * Inicializa el tema basado en:
-     * 1. Preferencia guardada en localStorage
-     * 2. Preferencia del sistema (prefers-color-scheme)
-     * 3. Modo oscuro por defecto
-     */
-    function initTheme() {
-      const savedTheme = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      
-      // Aplicar modo claro solo si está explícitamente guardado
-      // Por defecto: modo oscuro
-      if (savedTheme === 'light') {
-        document.body.classList.add('light-mode');
-      }
-      // Si no hay preferencia guardada, usar modo oscuro por defecto
-    }
+    <div class="actions">
+      <button class="cta" id="flip" type="button">Lanzar</button>
+      <p class="hint">o pulsa <kbd>Espacio</kbd></p>
+    </div>
+  </main>
 
-    /**
-     * Alterna entre modo claro y oscuro
-     * Guarda la preferencia en localStorage
-     */
-    function toggleTheme() {
-      document.body.classList.toggle('light-mode');
-      const isLight = document.body.classList.contains('light-mode');
-      localStorage.setItem('theme', isLight ? 'light' : 'dark');
-    }
+  <section class="stats" aria-labelledby="stats-title">
+    <div class="stats__head">
+      <h2 class="stats__title" id="stats-title">Estadísticas</h2>
+      <button class="text-btn" id="reset" type="button">Reiniciar</button>
+    </div>
 
-    /**
-     * Maneja eventos de teclado en la moneda
-     * Permite lanzar con Enter o Espacio
-     */
-    function handleKeydown(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        flipCoin();
-      }
-    }
+    <dl class="stats__grid">
+      <div class="stat">
+        <dt><span class="mark mark--heads" aria-hidden="true"></span>Cara</dt>
+        <dd><span id="heads-count">0</span> <small id="heads-pct">0%</small></dd>
+      </div>
+      <div class="stat">
+        <dt><span class="mark mark--tails" aria-hidden="true"></span>Cruz</dt>
+        <dd><span id="tails-count">0</span> <small id="tails-pct">0%</small></dd>
+      </div>
+      <div class="stat">
+        <dt>Racha</dt>
+        <dd id="streak">—</dd>
+      </div>
+    </dl>
 
-    // Event Listeners
-    COIN.addEventListener('click', flipCoin);
-    COIN.addEventListener('keydown', handleKeydown);
-    THEME_TOGGLE.addEventListener('click', toggleTheme);
+    <div class="ratio" aria-hidden="true"><span class="ratio__heads" id="ratio-heads"></span></div>
 
-    // Inicialización cuando el DOM está listo
-    document.addEventListener('DOMContentLoaded', () => {
-      initTheme();
-      
-      // Dar foco automático a la moneda
-      setTimeout(() => {
-        COIN.focus();
-      }, 100);
-    });
-  </script>
+    <ol class="history" id="history" aria-label="Últimos lanzamientos, del más reciente al más antiguo"></ol>
+  </section>
+
+  <script src="js/app.js" defer></script>
 </body>
 </html>
