@@ -30,30 +30,33 @@
   <link rel="manifest" href="img/favicon/site.webmanifest">
 </head>
 <body>
-  <header class="bar">
-    <span class="bar__path"><span class="muted">~/</span>cara-o-cruz</span>
-    <button class="link" id="theme-toggle" type="button">[claro]</button>
-  </header>
+  <!-- Primera pantalla: solo título, tema, moneda y lanzar. Las stats quedan debajo -->
+  <div class="screen">
+    <header class="bar">
+      <span class="bar__path"><span class="muted">~/</span>cara-o-cruz</span>
+      <button class="link" id="theme-toggle" type="button">[claro]</button>
+    </header>
 
-  <main class="stage">
-    <div class="arena">
-      <button class="coin" id="coin" type="button" aria-label="Lanzar la moneda">
-        <span class="coin__inner" id="coin-inner">
-          <img class="coin__face coin__face--heads" src="img/coin-heads.webp" alt="" width="512" height="512" draggable="false">
-          <img class="coin__face coin__face--tails" src="img/coin-tails.webp" alt="" width="512" height="512" draggable="false">
-        </span>
+    <main class="stage">
+      <div class="arena">
+        <button class="coin" id="coin" type="button" aria-label="Lanzar la moneda">
+          <span class="coin__inner" id="coin-inner">
+            <img class="coin__face coin__face--heads" src="img/coin-heads.webp" alt="" width="512" height="512" draggable="false">
+            <img class="coin__face coin__face--tails" src="img/coin-tails.webp" alt="" width="512" height="512" draggable="false">
+          </span>
+        </button>
+        <div class="coin-shadow" id="coin-shadow" aria-hidden="true"></div>
+      </div>
+
+      <p class="result" id="result" aria-hidden="true"></p>
+      <p class="sr-only" id="announce" aria-live="polite"></p>
+
+      <button class="link hint" id="hint" type="button" aria-label="Lanzar la moneda (atajo: espacio)">
+        <span class="hint--keys">[espacio]</span>
+        <span class="hint--touch">[lanzar]</span>
       </button>
-      <div class="coin-shadow" id="coin-shadow" aria-hidden="true"></div>
-    </div>
-
-    <p class="result" id="result" aria-hidden="true"></p>
-    <p class="sr-only" id="announce" aria-live="polite"></p>
-
-    <button class="link hint" id="hint" type="button" aria-label="Lanzar la moneda (atajo: espacio)">
-      <span class="hint--keys">[espacio]</span>
-      <span class="hint--touch">[lanzar]</span>
-    </button>
-  </main>
+    </main>
+  </div>
 
   <section class="log" aria-label="Estadísticas">
     <p class="line" id="stats-line"></p>
