@@ -1,192 +1,362 @@
-/* Variables CSS para temas */
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
 :root {
-  --bg-gradient-start: #444;
-  --bg-gradient-end: #222;
-  --text-color: #ffffff;
+  --bg: #0d0d0d;
+  --text: #d9d9d9;
+  --muted: #767676;
+  --faint: #262626;
+  --accent: #fb7b24;
+  --shadow: rgba(0, 0, 0, 0.6);
+  --focus: #fb7b24;
+
+  --coin-size: clamp(150px, min(52vw, 32vh), 260px);
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
+
+  color-scheme: dark;
 }
 
-/* Tema claro */
-body.light-mode {
-  --bg-gradient-start: #f5f5f5;
-  --bg-gradient-end: #e0e0e0;
-  --text-color: #333333;
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #ffffff;
+    --text: #1f1f1f;
+    --muted: #8f8f8f;
+    --faint: #eeeeee;
+    --accent: #fb7b24;
+    --shadow: rgba(0, 0, 0, 0.14);
+    --focus: #fb7b24;
+    color-scheme: light;
+  }
 }
 
-/* Estilos base del body */
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --text: #1f1f1f;
+  --muted: #8f8f8f;
+  --faint: #eeeeee;
+  --accent: #fb7b24;
+  --shadow: rgba(0, 0, 0, 0.14);
+  --focus: #fb7b24;
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  padding: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 600px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
+  padding: max(16px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+p {
   margin: 0;
-  background: radial-gradient(circle, var(--bg-gradient-start), var(--bg-gradient-end));
-  color: var(--text-color);
-  transition: background 0.3s ease;
-  min-height: 100vh;
-  height: 100vh;
-  overflow: hidden;
-  perspective: 800px;
 }
 
-/* Contenedor centrado con flexbox */
-.v-center-flex {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  height: 100vh;
+:focus-visible {
+  outline: 1px dashed var(--focus);
+  outline-offset: 4px;
 }
 
-/* Removido: causaba conflicto con position absolute de las caras */
-/* .v-center-flex div {
-  margin: 0 auto;
-} */
-
-/* Estilos de la moneda */
-#moneda {
-  position: relative;
-  margin: 0 auto;
-  width: 375px;  /* Aumentado 25% desde 300px */
-  height: 375px; /* Aumentado 25% desde 300px */
-  cursor: pointer;
-  transition: filter 0.3s ease;  /* Solo filter, NO transform */
-  transform-style: preserve-3d;
+.muted {
+  color: var(--muted);
 }
 
-/* Transition de transform solo cuando NO está animando */
-#moneda:not(.cara):not(.cruz) {
-  transition: transform 0.3s ease, filter 0.3s ease;
-}
-
-/* Efecto hover - solo cuando NO está animando */
-#moneda:hover:not(.cara):not(.cruz) {
-  transform: scale(1.05);
-  filter: brightness(1.1);
-}
-
-/* En escritorio: desactivar hover durante animación */
-@media (hover: hover) and (pointer: fine) {
-  #moneda.cara,
-  #moneda.cruz {
-    pointer-events: none;  /* Desactivar hover solo en escritorio */
-  }
-}
-
-/* En móvil: mantener pointer-events activo siempre */
-@media (hover: none) or (pointer: coarse) {
-  #moneda.cara,
-  #moneda.cruz {
-    pointer-events: auto;  /* Permitir toques en móvil */
-  }
-}
-
-/* Remover outline al hacer focus con click */
-#moneda:focus {
-  outline: none;
-}
-
-/* Caras de la moneda */
-#moneda div {
+.sr-only {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  backface-visibility: hidden;
-  top: 0;
-  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-/* Asegurar que las imágenes ocupen todo el espacio */
-#moneda img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: contain;
+.link {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: default;
 }
 
-/* Cara frontal (cara) */
-.side-a {
-  z-index: 100;
+.link:hover {
+  color: var(--text);
 }
 
-/* Cara posterior (cruz) */
-.side-b {
-  transform: rotateY(-180deg);
-}
+/* ==========================================================================
+   Barra
+   ========================================================================== */
 
-/* Animación para cara (1800 grados) */
-#moneda.cara {
-  animation: flipHeads 3s ease-out forwards;
-  transition: none !important;  /* Desactivar transition durante animación */
-}
-
-/* Animación para cruz (1980 grados) */
-#moneda.cruz {
-  animation: flipTails 3s ease-out forwards;
-  transition: none !important;  /* Desactivar transition durante animación */
-}
-
-/* Keyframes para cara */
-@keyframes flipHeads {
-  from { 
-    transform: rotateY(0); 
-  }
-  to { 
-    transform: rotateY(1800deg); 
-  }
-}
-
-/* Keyframes para cruz */
-@keyframes flipTails {
-  from { 
-    transform: rotateY(0); 
-  }
-  to { 
-    transform: rotateY(1980deg); 
-  }
-}
-
-/* Botón de toggle de tema */
-#theme-toggle {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  cursor: pointer;
-  font-size: 1.5rem;
+.bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+/* ==========================================================================
+   Moneda
+   ========================================================================== */
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
+  gap: 12px;
+  padding: 16px 0 20px;
 }
 
-#theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
+.arena {
+  display: grid;
+  place-items: center;
+  perspective: 1000px;
 }
 
-/* Iconos del botón de tema */
-#theme-toggle .sun-icon {
-  display: none;
-}
-
-#theme-toggle .moon-icon {
-  display: block;
-}
-
-/* Iconos en modo claro */
-body.light-mode #theme-toggle .sun-icon {
-  display: block;
-}
-
-body.light-mode #theme-toggle .moon-icon {
-  display: none;
-}
-
-/* Optimización de rendimiento para animaciones */
-#moneda {
+.coin {
+  position: relative;
+  z-index: 1;
+  width: var(--coin-size);
+  height: var(--coin-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: default;
+  transform-style: preserve-3d;
   will-change: transform;
+  touch-action: manipulation;
+}
+
+.coin:focus-visible {
+  outline-offset: 10px;
+  border-radius: 50%;
+}
+
+.coin__inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.coin__face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+.coin__face--tails {
+  transform: rotateX(180deg);
+}
+
+/* Brillo sutil al pasar el mouse. El filtro va en cada cara y no en
+   .coin__inner porque un filtro ahí aplanaría el 3D del giro. */
+@media (hover: hover) and (pointer: fine) {
+  .coin__face {
+    transition: filter 0.2s ease;
+  }
+
+  .coin:hover:not([aria-busy="true"]) .coin__face {
+    filter: brightness(1.1) saturate(1.05);
+  }
+}
+
+.coin-shadow {
+  width: calc(var(--coin-size) * 0.7);
+  height: calc(var(--coin-size) * 0.08);
+  margin-top: calc(var(--coin-size) * 0.07);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--shadow), transparent);
+  will-change: transform, opacity;
+}
+
+/* ==========================================================================
+   Resultado y ayuda
+   ========================================================================== */
+
+.result {
+  min-height: 1.2em;
+  /* compensa el espaciado de la última letra para que quede centrado */
+  margin-right: -0.3em;
+  white-space: nowrap;
+  font-size: clamp(2rem, 9vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.3em;
+}
+
+.result .scramble {
+  color: var(--muted);
+}
+
+.hint {
+  font-size: 12px;
+}
+
+.hint--touch { display: none; }
+
+@media (hover: none) and (pointer: coarse) {
+  .hint--keys  { display: none; }
+  .hint--touch { display: inline; }
+}
+
+/* ==========================================================================
+   Stats + heatmap
+   ========================================================================== */
+
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--faint);
+  font-size: 12px;
+}
+
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  color: var(--muted);
+}
+
+.line .item {
+  white-space: nowrap;
+}
+
+.line b {
+  font-weight: 400;
+  color: var(--text);
+}
+
+.line .sep {
+  margin: 0 0.75ch;
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.line .history {
+  white-space: normal;
+  word-break: break-all;
+  letter-spacing: 0.2ch;
+  color: var(--accent);
+}
+
+.heatmap {
+  --cols: 26;
+  margin-top: 10px;
+}
+
+.heatmap__months,
+.heatmap__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: 3px;
+}
+
+.heatmap__months {
+  height: 1.6em;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.heatmap__months span {
+  white-space: nowrap;
+}
+
+.heatmap__grid {
+  grid-template-rows: repeat(7, auto);
+  grid-auto-flow: column;
+}
+
+.heatmap__grid i,
+.legend i {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: var(--faint);
+}
+
+.heatmap__grid i.is-future {
+  visibility: hidden;
+}
+
+.heatmap__grid i.is-today {
+  outline: 1px solid var(--muted);
+  outline-offset: 1px;
+}
+
+.heatmap i[data-l="1"] { background: color-mix(in srgb, var(--accent) 30%, var(--faint)); }
+.heatmap i[data-l="2"] { background: color-mix(in srgb, var(--accent) 55%, var(--faint)); }
+.heatmap i[data-l="3"] { background: color-mix(in srgb, var(--accent) 80%, var(--faint)); }
+.heatmap i[data-l="4"] { background: var(--accent); }
+
+.heatmap__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.legend i {
+  width: 10px;
+}
+
+.log > .link {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
