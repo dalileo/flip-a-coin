@@ -11,7 +11,9 @@
   --shadow: rgba(0, 0, 0, 0.6);
   --focus: #fb7b24;
 
-  --coin-size: clamp(150px, min(52vw, 32vh), 260px);
+  --coin-size: clamp(160px, min(62vw, 38vh), 300px);
+  --bar-h: 32px;
+  --screen-pad: max(16px, env(safe-area-inset-top));
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
 
   color-scheme: dark;
@@ -60,12 +62,7 @@ body {
   margin: 0 auto;
   width: 100%;
   max-width: 600px;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  grid-template-columns: minmax(0, 1fr);
-  padding: max(16px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+  padding: 0 20px max(24px, env(safe-area-inset-bottom));
   font-family: var(--mono);
   font-size: 14px;
   line-height: 1.5;
@@ -114,10 +111,22 @@ p {
 }
 
 /* ==========================================================================
-   Barra
+   Primera pantalla y barra
    ========================================================================== */
 
+/* Ocupa exactamente la pantalla visible al cargar (svh = con la barra del
+   navegador móvil desplegada), así las stats solo aparecen al hacer scroll */
+.screen {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: var(--screen-pad);
+}
+
 .bar {
+  height: var(--bar-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -133,7 +142,9 @@ p {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 16px 0 20px;
+  /* el padding inferior iguala la barra + margen superior: el bloque queda
+     centrado respecto a la pantalla completa, no solo al espacio bajo la barra */
+  padding: 16px 0 calc(var(--screen-pad) + var(--bar-h) + 16px);
 }
 
 .arena {
@@ -244,7 +255,7 @@ p {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-top: 16px;
+  padding-top: 20px;
   border-top: 1px dashed var(--faint);
   font-size: 12px;
 }

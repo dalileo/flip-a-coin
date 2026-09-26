@@ -10,6 +10,7 @@ Moneda virtual para decidir rápido: toca la moneda (o pulsa **Espacio**) y sale
 - **Lanzamiento realista**: la moneda sube, gira entre 4 y 6 vueltas y aterriza con un pequeño rebote; la sombra acompaña la altura.
 - **Revelado "hypertext"**: el resultado no aparece hasta lanzar; mientras la moneda vuela se muestran caracteres aleatorios que se fijan letra a letra en `CARA` o `CRUZ`.
 - **Aleatoriedad justa**: 50/50 con `crypto.getRandomValues`.
+- **Primera pantalla limpia**: al abrir solo se ven el título, el tema, la moneda y `[espacio]`/`[lanzar]`; las stats y el heatmap aparecen al hacer scroll.
 - **Stats en una línea**: total, % de cara y cruz, racha actual, récord de racha y lanzamientos de hoy, más los últimos 32 resultados (`●` cara, `○` cruz).
 - **Heatmap de actividad**: las últimas 26 semanas, un cuadro por día, con intensidad según cuántas veces lanzaste la moneda ese día.
 - **Tema claro/oscuro**: el claro es blanco y grises con el acento; sigue al sistema por defecto y `[claro]`/`[oscuro]` fija una preferencia.
