@@ -7,7 +7,6 @@ const els = {
   inner: $('coin-inner'),
   shadow: $('coin-shadow'),
   result: $('result'),
-  resultLine: document.querySelector('.result'),
   hint: $('hint'),
   announce: $('announce'),
   statsLine: $('stats-line'),
@@ -181,15 +180,11 @@ function scramble(final, duration) {
   const start = performance.now();
   let lastTick = 0;
 
-  // El cursor deja de parpadear mientras "escribe"
-  els.resultLine.classList.add('is-typing');
-
   return new Promise((resolve) => {
     const frame = (now) => {
       const t = now - start;
       if (t >= duration) {
         els.result.textContent = final;
-        els.resultLine.classList.remove('is-typing');
         resolve();
         return;
       }
@@ -366,7 +361,7 @@ function resetStats() {
   render();
 }
 
-// Antes del primer lanzamiento solo se ve el cursor
+// Antes del primer lanzamiento no se muestra ningún resultado
 function showIdle() {
   els.result.textContent = '';
 }

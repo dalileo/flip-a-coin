@@ -185,6 +185,18 @@ p {
   transform: rotateX(180deg);
 }
 
+/* Brillo sutil al pasar el mouse. El filtro va en cada cara y no en
+   .coin__inner porque un filtro ahí aplanaría el 3D del giro. */
+@media (hover: hover) and (pointer: fine) {
+  .coin__face {
+    transition: filter 0.2s ease;
+  }
+
+  .coin:hover:not([aria-busy="true"]) .coin__face {
+    filter: brightness(1.1) saturate(1.05);
+  }
+}
+
 .coin-shadow {
   width: calc(var(--coin-size) * 0.7);
   height: calc(var(--coin-size) * 0.08);
@@ -199,41 +211,18 @@ p {
    ========================================================================== */
 
 .result {
-  position: relative;
   min-height: 1.2em;
+  /* compensa el espaciado de la última letra para que quede centrado */
+  margin-right: -0.3em;
   white-space: nowrap;
   font-size: clamp(2rem, 9vw, 2.75rem);
   font-weight: 700;
   line-height: 1.2;
-}
-
-.result__text {
-  /* compensa el espaciado de la última letra para que quede centrado */
-  margin-right: -0.3em;
   letter-spacing: 0.3em;
 }
 
-.result__text .scramble {
+.result .scramble {
   color: var(--muted);
-}
-
-/* Cursor de bloque colgado a la derecha: no desplaza el texto centrado */
-.cursor {
-  position: absolute;
-  top: 0.12em;
-  left: calc(100% + 0.15em);
-  width: 0.55em;
-  height: 1em;
-  background: var(--accent);
-  animation: blink 1.05s steps(1) infinite;
-}
-
-.result.is-typing .cursor {
-  animation: none;
-}
-
-@keyframes blink {
-  50% { opacity: 0; }
 }
 
 .hint {
@@ -364,10 +353,6 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cursor {
-    animation: none !important;
-  }
-
   *,
   *::before,
   *::after {

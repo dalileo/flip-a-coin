@@ -6,7 +6,7 @@ Moneda virtual para decidir rápido: toca la moneda (o pulsa **Espacio**) y sale
 
 ## Características
 
-- **Estética de terminal**: JetBrains Mono, acento naranja `#FB7B24` y nada más; solo la moneda, el resultado con cursor parpadeante y `[espacio]` (también clickeable).
+- **Estética de terminal**: JetBrains Mono, acento naranja `#FB7B24` y nada más; solo la moneda, el resultado y `[espacio]` (también clickeable).
 - **Lanzamiento realista**: la moneda sube, gira entre 4 y 6 vueltas y aterriza con un pequeño rebote; la sombra acompaña la altura.
 - **Revelado "hypertext"**: el resultado no aparece hasta lanzar; mientras la moneda vuela se muestran caracteres aleatorios que se fijan letra a letra en `CARA` o `CRUZ`.
 - **Aleatoriedad justa**: 50/50 con `crypto.getRandomValues`.
