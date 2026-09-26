@@ -106,7 +106,7 @@ p {
   border: 0;
   background: none;
   color: var(--muted);
-  cursor: pointer;
+  cursor: default;
 }
 
 .link:hover {
@@ -151,7 +151,7 @@ p {
   border: 0;
   border-radius: 50%;
   background: none;
-  cursor: pointer;
+  cursor: default;
   transform-style: preserve-3d;
   will-change: transform;
   touch-action: manipulation;
